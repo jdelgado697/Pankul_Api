@@ -10,9 +10,22 @@ import { MeModule } from './me/me.module';
 import { InvitesModule } from "./invites/invites.module";
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ExportsModule } from './exports/exports.module';
+import { AppController } from './app.controller';
 
 @Module({
-  imports: [PrismaModule, AuthModule, PlayersModule, SessionsModule, EvaluationsModule, ReportsModule, GuardiansModule, MeModule, InvitesModule, DashboardModule, ExportsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    PlayersModule,
+    SessionsModule,
+    EvaluationsModule,
+    ReportsModule,
+    GuardiansModule,
+    MeModule,
+    InvitesModule,
+    DashboardModule,
+    ExportsModule,
+  ],
+  controllers: [AppController],
 })
 export class AppModule {}
-
