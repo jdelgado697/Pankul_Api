@@ -126,4 +126,4 @@ export class AuthController {
       body.newPassword
     );
   }
-}
+} 
