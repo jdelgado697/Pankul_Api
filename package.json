@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "build": "node ./node_modules/prisma/build/index.js generate && npx nest build",
-    "start:prod": "node ./node_modules/prisma/build/index.js migrate deploy && node dist/main.js",
+  "start": "nest start",
+  "start:dev": "nest start --watch",
+  "build": "node ./node_modules/prisma/build/index.js generate && node ./node_modules/@nestjs/cli/bin/nest.js build",
+  "start:prod": "node ./node_modules/prisma/build/index.js migrate deploy && node dist/main.js",
     "prisma:generate": "node ./node_modules/prisma/build/index.js generate",
     "prisma:migrate": "node ./node_modules/prisma/build/index.js migrate dev",
     "prisma:deploy": "node ./node_modules/prisma/build/index.js migrate deploy"
