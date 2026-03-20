@@ -33,6 +33,12 @@ class ChangePasswordDto {
   newPassword!: string;
 }
 
+class BootstrapAdminDto {
+  email!: string;
+  password!: string;
+  fullName?: string;
+}
+
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -86,6 +92,21 @@ export class AuthController {
     }
 
     return this.authService.resetPassword(body.token, body.password);
+  }
+
+  @Post("bootstrap-admin")
+  @HttpCode(201)
+  async bootstrapAdmin(@Body() body: BootstrapAdminDto) {
+    if (!body?.email || !body?.password) {
+      throw new BadRequestException("Email y contraseña son obligatorios");
+    }
+
+    return this.authService.createUserAsAdmin({
+      email: body.email,
+      password: body.password,
+      role: "ADMIN",
+      fullName: body.fullName,
+    });
   }
 
   @UseGuards(AuthGuard("jwt"))
