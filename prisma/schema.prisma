@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  COACH
+  PARENT
+  DIRECTOR
+}
+
+enum PlayerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SessionType {
+  TRAINING
+  GAME
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(PARENT)
+  fullName     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+
+  guardianships   PlayerGuardian[]
+  announcements   Announcement[]   @relation("AnnouncementCreator")
+  refreshTokens   RefreshToken[]
+  invitesUsed     Invite[]         @relation("InvitesUsed")
+  evaluationsMade Evaluation[]     @relation("EvaluationEvaluator")
+}
+
+model Player {
+  id        String       @id @default(uuid())
+  firstName String
+  lastName  String
+  birthYear Int
+  status    PlayerStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  guardianships PlayerGuardian[]
+  attendance    Attendance[]
+  evaluations   Evaluation[]
+  invites       Invite[]
+}
+
+model PlayerGuardian {
+  id       String  @id @default(uuid())
+  playerId String
+  userId   String
+  relation String?
+  canView  Boolean @default(true)
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, userId])
+}
+
+model Session {
+  id        String      @id @default(uuid())
+  dateTime  DateTime
+  type      SessionType
+  opponent  String?
+  location  String?
+  notes     String?
+  createdAt DateTime    @default(now())
+
+  attendance Attendance[]
+}
+
+model Attendance {
+  id        String           @id @default(uuid())
+  sessionId String
+  playerId  String
+  status    AttendanceStatus
+  note      String?
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  player  Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, playerId])
+  @@index([playerId])
+  @@index([sessionId])
+}
+
+model Evaluation {
+  id              String   @id @default(cuid())
+  playerId        String
+  evaluatorUserId String?
+  date            DateTime @default(now())
+  dribbling       Int
+  passing         Int
+  shooting        Int      @default(0)
+  defense         Int
+  decisionMaking  Int      @default(0)
+  attitude        Int
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  evaluator User?  @relation("EvaluationEvaluator", fields: [evaluatorUserId], references: [id], onDelete: Restrict)
+
+  @@index([playerId, date])
+  @@index([evaluatorUserId])
+}
+
+model PlanWeekly {
+  id             String   @id @default(uuid())
+  weekStartDate  DateTime @unique
+  objectiveTech  String?
+  objectiveGame  String?
+  focusDefense   String?
+  homeSupportTip String?
+  notes          String?
+
+  sessions PlanSession[]
+}
+
+model PlanSession {
+  id             String  @id @default(uuid())
+  planWeeklyId   String
+  day            String
+  blocksJson     Json
+  keyCorrections String?
+
+  plan PlanWeekly @relation(fields: [planWeeklyId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  body      String
+  audience  String
+  createdBy String
+  createdAt DateTime @default(now())
+
+  creator User @relation("AnnouncementCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Invite {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  playerId  String
+  relation  String?
+  canView   Boolean   @default(true)
+  expiresAt DateTime?
+  usedAt    DateTime?
+  usedById  String?
+
+  createdAt DateTime @default(now())
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  usedBy User?  @relation("InvitesUsed", fields: [usedById], references: [id])
+
+  @@index([playerId])
+}
