@@ -5,11 +5,11 @@
   "scripts": {
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "build": "npx prisma generate && npx nest build",
-    "start:prod": "npx prisma migrate deploy && node dist/main.js",
-    "prisma:generate": "npx prisma generate",
-    "prisma:migrate": "npx prisma migrate dev",
-    "prisma:deploy": "npx prisma migrate deploy"
+    "build": "node ./node_modules/prisma/build/index.js generate && node ./node_modules/@nestjs/cli/bin/nest.js build",
+    "start:prod": "node ./node_modules/prisma/build/index.js migrate deploy && node dist/main.js",
+    "prisma:generate": "node ./node_modules/prisma/build/index.js generate",
+    "prisma:migrate": "node ./node_modules/prisma/build/index.js migrate dev",
+    "prisma:deploy": "node ./node_modules/prisma/build/index.js migrate deploy"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
