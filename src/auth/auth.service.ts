@@ -5,7 +5,7 @@ import { InvitesService } from "../invites/invites.service";
 import { MailService } from "../mail/mail.service";
 import * as crypto from "crypto";
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 function mustEnv(name: string): string {
